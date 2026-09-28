@@ -68,13 +68,42 @@ public class MockDataGenerator {
             q.completeQuest();
         }
 
+        System.out.println("\n===== Mock Data: ฉากล้มเหลวระหว่างด่าน =====");
+        Level2 stuckLevel = new Level2();
+        System.out.println("เนื้อเรื่องเปิดด่าน: " + stuckLevel.getIntroStory());
+        stuckLevel.triggerFail();
+
+        System.out.println("\n===== Mock Data: ฉากล้มเหลวเพราะหมดเวลาหาของ (ด่าน 1) =====");
+        Level1 timedOutLevel = new Level1();
+        timedOutLevel.unlock();
+        timedOutLevel.startLevel();
+        // จำลองว่าผู้เล่นยังหาไอเทมไม่ครบ แล้วเวลาผ่านไปจนหมดเวลา (Time.LEVEL_TIME = 600 วินาที)
+        boolean failedByTime = timedOutLevel.updateTime(Time.LEVEL_TIME + 1);
+        System.out.println("แพ้เพราะหมดเวลาหรือไม่: " + failedByTime);
+
+        System.out.println("\n===== Mock Data: หาของครบทันเวลา (ด่าน 1) =====");
+        Level1 successLevel = new Level1();
+        successLevel.unlock();
+        successLevel.startLevel();
+        // จำลองว่าผู้เล่นเก็บไอเทมที่ต้องใช้ของด่านนี้ครบก่อนหมดเวลา
+        for (Item req : successLevel.getRequiredItems()) {
+            req.collect();
+        }
+        boolean failedEvenThoughFound = successLevel.updateTime(300);
+        System.out.println("แพ้เพราะหมดเวลาหรือไม่ (หาครบแล้ว): " + failedEvenThoughFound);
+        if (successLevel.isAllItemsFound()) {
+            successLevel.completeLevel();
+        }
+
         System.out.println("\n===== Mock Data: Ending =====");
         Ending normalEnding = new NormalEnding(1);
         Ending trueEnding = new TrueEnding(2);
-        
-        // จำลองสถานการณ์: ผ่าน 3 ด่าน, ทำ 2 เควส, เก็บไอเทมลับครบ 3 ชิ้น
-        System.out.println("--- ผลลัพธ์ฉากจบ ---");
-        normalEnding.trigger(3, 2, 3);
-        trueEnding.trigger(3, 2, 3);
+
+
+        // จำลองสถานการณ์ที่ 2: ผ่านแค่ 1 ด่าน แล้วล้มเหลวกลางทาง
+        System.out.println("\n--- ผลลัพธ์ฉากจบ (ผู้เล่นล้มเหลวกลางทาง) ---");
+        normalEnding.trigger(1, 0, 0);
+        trueEnding.trigger(1, 0, 0);
+
     }
 }
